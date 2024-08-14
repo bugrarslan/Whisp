@@ -1,14 +1,19 @@
-import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { Button, StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { useRouter } from "expo-router";
+import ScreenWrapper from "../components/ScreenWrapper";
 
-const index = () => {
+const Page = () => {
+  const router = useRouter();
+
   return (
-    <View>
+    <ScreenWrapper>
       <Text>index</Text>
-    </View>
-  )
-}
+      <Button title="Go to Welcome" onPress={() => router.push("welcome")} />
+    </ScreenWrapper>
+  );
+};
 
-export default index
+export default Page;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({});
