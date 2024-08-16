@@ -5,8 +5,11 @@ import { StatusBar } from "expo-status-bar";
 import { hp, wp } from "../helpers/common";
 import { theme } from "../constants/theme";
 import Button from "../components/Button";
+import { useRouter } from "expo-router";
 
 const Page = () => {
+    const router = useRouter();
+
   return (
     <ScreenWrapper backgroundColor="white">
       <StatusBar style="dark" />
@@ -27,13 +30,23 @@ const Page = () => {
           <Button
             title="Getting Started"
             buttonStyle={{ marginHorizontal: wp(3) }}
-            onPress={() => {}}
+            onPress={() => router.push("signUp")}
           />
 
           <View style={styles.bottomTextContainer}>
             <Text style={styles.loginText}>Already Have an account?</Text>
-            <Pressable>
-              <Text style={[styles.loginText, {color: theme.colors.primaryDark, fontWeight: theme.fonts.semibold}]}>Login</Text>
+            <Pressable onPress={() => router.push('login')}>
+              <Text
+                style={[
+                  styles.loginText,
+                  {
+                    color: theme.colors.primaryDark,
+                    fontWeight: theme.fonts.semibold,
+                  },
+                ]}
+              >
+                Login
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -77,7 +90,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 5
+    gap: 5,
   },
   loginText: {
     textAlign: "center",
