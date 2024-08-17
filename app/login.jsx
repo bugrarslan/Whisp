@@ -9,6 +9,7 @@ import { useRouter } from "expo-router";
 import { hp, wp } from "../helpers/common";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import { supabase } from "../lib/supabase";
 
 const Page = () => {
   const router = useRouter();
@@ -21,6 +22,25 @@ const Page = () => {
       return Alert.alert("Login", "Please fill all fields!");
       return;
     }
+
+    let email = emailRef.current.trim();
+    let password = passwordRef.current.trim();
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    console.log("error", error);
+
+    if (error) {
+      Alert.alert("Sign In", error.message);
+    }
+
     // good to go
   };
 
@@ -62,13 +82,17 @@ const Page = () => {
 
         {/* footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Don't have an account?
-          </Text>
-          <Pressable 
-            onPress={() => router.push("signUp")}
-          >
-            <Text style={[styles.footerText, { color: theme.colors.primaryDark, fontWeight: theme.fonts.semibold }]}>
+          <Text style={styles.footerText}>Don't have an account?</Text>
+          <Pressable onPress={() => router.push("signUp")}>
+            <Text
+              style={[
+                styles.footerText,
+                {
+                  color: theme.colors.primaryDark,
+                  fontWeight: theme.fonts.semibold,
+                },
+              ]}
+            >
               Sign up
             </Text>
           </Pressable>

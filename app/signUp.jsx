@@ -9,6 +9,7 @@ import { useRouter } from "expo-router";
 import { hp, wp } from "../helpers/common";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import { supabase } from "../lib/supabase";
 
 const Page = () => {
   const router = useRouter();
@@ -22,6 +23,31 @@ const Page = () => {
       return Alert.alert("Sign Up", "Please fill all fields!");
       return;
     }
+
+    let name = nameRef.current.trim();
+    let email = emailRef.current.trim();
+    let password = passwordRef.current.trim();
+
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+        },
+      },
+    });
+
+    console.log("session", session);
+    console.log("error", error);
+
+    if (error) {
+      Alert.alert("Sign Up", error.message);
+    }
+
     // good to go
   };
 
@@ -67,13 +93,17 @@ const Page = () => {
 
         {/* footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Already have an account?
-          </Text>
-          <Pressable 
-            onPress={() => router.push("login")}
-          >
-            <Text style={[styles.footerText, { color: theme.colors.primaryDark, fontWeight: theme.fonts.semibold }]}>
+          <Text style={styles.footerText}>Already have an account?</Text>
+          <Pressable onPress={() => router.push("login")}>
+            <Text
+              style={[
+                styles.footerText,
+                {
+                  color: theme.colors.primaryDark,
+                  fontWeight: theme.fonts.semibold,
+                },
+              ]}
+            >
               Login
             </Text>
           </Pressable>
