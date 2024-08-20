@@ -13,21 +13,23 @@ const Page = () => {
   const {user, setAuth } = useAuth();
   const router = useRouter();
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
+  // const signOut = async () => {
+  //   const { error } = await supabase.auth.signOut();
 
-    if (error) {
-      Alert.alert("Sign Out", "An error occurred while signing out");
-      return;
-    }
-  };
+  //   if (error) {
+  //     Alert.alert("Sign Out", "An error occurred while signing out");
+  //     return;
+  //   }
+  // };
+
+  console.log("user: ", user);
 
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         {/* header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Whisp</Text>
+          <Text style={styles.title} onPress={()=>{}}>Whisp</Text>
           <View style={styles.icons}>
             <Pressable onPress={()=> router.push("./notifications")}>
               <Icon name="heart" size={hp(3.2)} strokeWidth={2} color={theme.colors.text} />

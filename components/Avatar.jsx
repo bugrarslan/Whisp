@@ -13,7 +13,7 @@ const Avatar = ({
 }) => {
   return (
     <Image
-      uri={getUserImageSrc(uri)}
+      source={getUserImageSrc(uri)}
       style={[
         styles.avatar,
         {
@@ -23,6 +23,7 @@ const Avatar = ({
         },
         style,
       ]}
+      transition={100}
     />
   );
 };
@@ -32,7 +33,7 @@ export default Avatar;
 const styles = StyleSheet.create({
   avatar: {
     borderCurve: "continuous",
-    borderColor: theme.colors.primary,
+    borderColor: theme.colors.darkLight,
     borderWidth: 1,
 		
   },
