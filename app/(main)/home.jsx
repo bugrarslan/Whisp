@@ -22,7 +22,7 @@ const Page = () => {
   //   }
   // };
 
-  console.log("user: ", user);
+  // console.log("user: ", user);
 
   return (
     <ScreenWrapper>

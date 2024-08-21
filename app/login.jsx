@@ -35,7 +35,7 @@ const Page = () => {
 
     setLoading(false);
 
-    console.log("error", error);
+    // console.log("error", error);
 
     if (error) {
       Alert.alert("Sign In", error.message);

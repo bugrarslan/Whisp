@@ -37,12 +37,13 @@ const Page = () => {
       options: {
         data: {
           name,
+          email,
         },
       },
     });
 
-    console.log("session", session);
-    console.log("error", error);
+    // console.log("session", session);
+    // console.log("error", error);
 
     if (error) {
       Alert.alert("Sign Up", error.message);
