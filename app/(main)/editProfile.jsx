@@ -83,7 +83,10 @@ const Page = () => {
     router.back();
   };
 
-  const imageSource = user.image && typeof user.image === "object" ? user.image.uri : getUserImageSrc(user.image);
+  const imageSource =
+    user.image && typeof user.image === "object"
+      ? user.image.uri
+      : getUserImageSrc(user.image);
 
   return (
     <ScreenWrapper backgroundColor={"white"}>
