@@ -27,24 +27,28 @@ const Page = () => {
   const router = useRouter();
 
   const [posts, setPosts] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
 
   const handlePostEvent = async (payload) => {
     if (payload.eventType === "INSERT" && payload?.new?.id) {
-      let newPost = {...payload.new};
+      let newPost = { ...payload.new };
       let res = await getUserData(newPost?.userId);
       newPost.user = res?.success ? res?.data : {};
-      setPosts(prevPosts => [newPost, ...prevPosts]);
+      setPosts((prevPosts) => [newPost, ...prevPosts]);
     }
-  }
+  };
 
   useEffect(() => {
-
     let postChannel = supabase
-    .channel("posts")
-    .on("postgres_changes", {event: "*", schema: "public", table: "posts"}, handlePostEvent)
-    .subscribe();
+      .channel("posts")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "posts" },
+        handlePostEvent
+      )
+      .subscribe();
 
-    getPosts();
+    // getPosts();
 
     return () => {
       supabase.removeChannel(postChannel);
@@ -53,11 +57,15 @@ const Page = () => {
 
   const getPosts = async () => {
     // call the api to get the posts
-    limit = limit + 10;
+    if (!hasMore) {
+      return null;
+    }
+    limit = limit + 4;
 
-    console.log("limit: ", limit);
+    // console.log("limit: ", limit);
     let res = await fetchPosts(limit);
     if (res.success) {
+      if (posts.length === res.data.length) setHasMore(false);
       setPosts(res.data);
     } else {
       Alert.alert("Home", res.msg);
@@ -121,10 +129,21 @@ const Page = () => {
             <PostCard item={item} currentUser={user} router={router} />
           )}
           ListFooterComponent={
-            <View style={{ marginVertical: posts.length == 0 ? 200 : 30 }}>
-              <Loading />
-            </View>
+            hasMore ? (
+              <View style={{ marginVertical: posts.length == 0 ? 200 : 30 }}>
+                <Loading />
+              </View>
+            ) : (
+              <View style={{ marginVertical: 30 }}>
+                <Text style={styles.noPosts}>No more posts</Text>
+              </View>
+            )
           }
+          onEndReached={() => {
+            // console.log("end reached");
+            getPosts();
+          }}
+          onEndReachedThreshold={0}
         />
       </View>
     </ScreenWrapper>
