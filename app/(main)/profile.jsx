@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useRouter } from "expo-router";
 import ScreenWrapper from "../../components/ScreenWrapper";
@@ -16,10 +16,18 @@ import Icon from "../../assets/icons";
 import { theme } from "../../constants/theme";
 import { supabase } from "../../lib/supabase";
 import Avatar from "../../components/Avatar";
+import { fetchPosts } from "../../services/postService";
+import PostCard from "../../components/PostCard";
+import Loading from "../../components/Loading";
+import { FlatList } from "react-native";
 
+var limit = 0;
 const Page = () => {
   const { user, setAuth } = useAuth();
   const router = useRouter();
+
+  const [posts, setPosts] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -45,9 +53,49 @@ const Page = () => {
     }
   };
 
+  const getPosts = async () => {
+    if (!hasMore) {
+      return null;
+    }
+    limit = limit + 10;
+    let res = await fetchPosts(limit, user.id);
+    if (res.success) {
+      if (posts.length === res.data.length) setHasMore(false);
+      setPosts(res.data);
+    } else {
+      Alert.alert("Home", res.msg);
+    }
+  };
+
   return (
     <ScreenWrapper backgroundColor={"white"}>
-      <UserHeader user={user} router={router} logout={handleLogout} />
+      <FlatList
+        data={posts}
+        ListHeaderComponent={<UserHeader user={user} router={router} logout={handleLogout} />}
+        ListHeaderComponentStyle={{marginBottom: 30}}
+        contentContainerStyle={styles.listStyle}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <PostCard item={item} currentUser={user} router={router} />
+        )}
+        ListFooterComponent={
+          hasMore ? (
+            <View style={{ marginVertical: posts.length == 0 ? 100 : 30 }}>
+              <Loading />
+            </View>
+          ) : (
+            <View style={{ marginVertical: 30 }}>
+              <Text style={styles.noPosts}>No more posts</Text>
+            </View>
+          )
+        }
+        onEndReached={() => {
+          // console.log("end reached");
+          getPosts();
+        }}
+        onEndReachedThreshold={0}
+      />
     </ScreenWrapper>
   );
 };
@@ -90,28 +138,24 @@ const UserHeader = ({ user, router, logout }) => {
           </View>
 
           {/* email and bio */}
-          <View style={{gap: 10}}>
+          <View style={{ gap: 10 }}>
             <View style={styles.info}>
               <Icon name="mail" size={20} color={theme.colors.textLight} />
               <Text style={styles.infoText}>{user && user.email}</Text>
             </View>
 
-            {
-              user && user.phoneNumber && (
-                <View style={styles.info}>
-                  <Icon name="call" size={20} color={theme.colors.textLight} />
-                  <Text style={styles.infoText}>{user && user.phoneNumber}</Text>
-                </View>
-              )
-            }
+            {user && user.phoneNumber && (
+              <View style={styles.info}>
+                <Icon name="call" size={20} color={theme.colors.textLight} />
+                <Text style={styles.infoText}>{user && user.phoneNumber}</Text>
+              </View>
+            )}
 
-{
-              user && user.bio && (
-                <View style={styles.info}>
-                  <Text style={styles.infoText}>{user && user.bio}</Text>
-                </View>
-              )
-            }
+            {user && user.bio && (
+              <View style={styles.info}>
+                <Text style={styles.infoText}>{user && user.bio}</Text>
+              </View>
+            )}
           </View>
         </View>
       </View>
@@ -172,5 +216,14 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: theme.radius.sm,
     backgroundColor: "#fee2e2",
+  },
+  listStyle: {
+    paddingTop: 20,
+    paddingHorizontal: wp(4),
+  },
+  noPosts: {
+    fontSize: hp(2),
+    color: theme.colors.text,
+    textAlign: "center",
   },
 });

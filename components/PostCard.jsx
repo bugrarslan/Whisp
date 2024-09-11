@@ -54,6 +54,9 @@ const PostCard = ({
   router,
   hasShadow = true,
   showMoreIcon = true,
+  showDelete = false,
+  onDelete = () => {},
+  onEdit = () => {},
 }) => {
   const shadowStyles = {
     shadowOffset: {
@@ -117,6 +120,21 @@ const PostCard = ({
     router.push({ pathname: "/postDetails", params: { postId: item?.id } });
   };
 
+  const handlepostDelete = () => {
+    Alert.alert("Sign Out", "Are you sure you want to do this?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("cancelled"),
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        onPress: () => onDelete(item),
+        style: "destructive",
+      },
+    ]);
+  };
+
   const createdAt = moment(item?.created_at).format("MMM D");
   const liked = likes.filter((like) => like.userId == currentUser?.id)[0]
     ? true
@@ -139,16 +157,41 @@ const PostCard = ({
 
         {/* more icon */}
 
-        {showMoreIcon && (
-          <TouchableOpacity onPress={openPostDetails}>
-            <Icon
-              name={"threeDotsHorizontal"}
-              size={hp(3.4)}
-              strokeWidth={3}
-              color={theme.colors.text}
-            />
-          </TouchableOpacity>
-        )}
+        {
+          showMoreIcon && (
+            <TouchableOpacity onPress={openPostDetails}>
+              <Icon
+                name={"threeDotsHorizontal"}
+                size={hp(3.4)}
+                strokeWidth={3}
+                color={theme.colors.text}
+              />
+            </TouchableOpacity>
+          )
+        }
+
+        {/* edit and delete icon */}
+
+        {
+          showDelete && currentUser.id === item?.userId && (
+            <View style={styles.actions}>
+              <TouchableOpacity onPress={() => onEdit(item)}>
+                <Icon
+                  name={"edit"}
+                  size={hp(2.5)}
+                  color={theme.colors.text}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handlepostDelete}>
+                <Icon
+                  name={"delete"}
+                  size={hp(2.5)}
+                  color={theme.colors.rose}
+                />
+              </TouchableOpacity> 
+            </View>
+          )
+        }
       </View>
 
       {/* post body and media */}

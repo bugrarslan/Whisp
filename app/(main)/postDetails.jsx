@@ -12,6 +12,7 @@ import {
   createComment,
   fetchPostDetails,
   removeComment,
+  removePost,
 } from "../../services/postService";
 import { hp, wp } from "../../helpers/common";
 import { theme } from "../../constants/theme";
@@ -116,6 +117,17 @@ const postDetails = () => {
     }
   };
 
+  const onDeletePost = async (post) => {
+    let res = await removePost(post.id);
+    if (res.success) router.back();
+    else Alert.alert("Post", res.msg)
+  };
+
+  const onEditPost = async (item) => {
+    router.back();
+    router.push({ pathname: "newPost", params: {...item}})
+  };
+
   if (startLoading) {
     return (
       <View style={styles.center}>
@@ -149,6 +161,9 @@ const postDetails = () => {
           router={router}
           hasShadow={false}
           showMoreIcon={false}
+          showDelete={true}
+          onDelete={onDeletePost}
+          onEdit={onEditPost}
         />
 
         {/* comment input */}

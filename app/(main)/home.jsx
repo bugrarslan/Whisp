@@ -33,8 +33,30 @@ const Page = () => {
     if (payload.eventType === "INSERT" && payload?.new?.id) {
       let newPost = { ...payload.new };
       let res = await getUserData(newPost?.userId);
+      newPost.postLikes = [];
+      newPost.comments = [{ count: 0 }];
       newPost.user = res?.success ? res?.data : {};
       setPosts((prevPosts) => [newPost, ...prevPosts]);
+    }
+
+    if (payload.eventType === "DELETE" && payload?.old?.id) {
+      setPosts((prevPosts) => {
+        let updatedPosts = prevPosts.filter((post) => post.id !== payload.old.id);
+        return updatedPosts;
+      });
+    }
+
+    if (payload.eventType === "UPDATE" && payload?.new?.id) {
+      setPosts(prevPosts => {
+        let updatedPosts = prevPosts.map(post => {
+          if (post.id === payload.new.id) {
+            post.body = payload.new.body;
+            post.file = payload.new.file;
+          }
+          return post;
+        });
+        return updatedPosts;
+      })
     }
   };
 
@@ -56,13 +78,10 @@ const Page = () => {
   }, []);
 
   const getPosts = async () => {
-    // call the api to get the posts
     if (!hasMore) {
       return null;
     }
-    limit = limit + 4;
-
-    // console.log("limit: ", limit);
+    limit = limit + 10;
     let res = await fetchPosts(limit);
     if (res.success) {
       if (posts.length === res.data.length) setHasMore(false);
@@ -71,17 +90,6 @@ const Page = () => {
       Alert.alert("Home", res.msg);
     }
   };
-
-  // const signOut = async () => {
-  //   const { error } = await supabase.auth.signOut();
-
-  //   if (error) {
-  //     Alert.alert("Sign Out", "An error occurred while signing out");
-  //     return;
-  //   }
-  // };
-
-  // console.log("user: ", user);
 
   return (
     <ScreenWrapper>
