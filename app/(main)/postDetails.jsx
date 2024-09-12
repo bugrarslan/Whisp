@@ -25,9 +25,11 @@ import Icon from "../../assets/icons";
 import CommentItem from "../../components/CommentItem";
 import { supabase } from "../../lib/supabase";
 import { getUserData } from "../../services/userService";
+import { createNotification } from "../../services/notificationService";
+import Header from "../../components/Header";
 
 const postDetails = () => {
-  const { postId } = useLocalSearchParams();
+  const { postId, commentId } = useLocalSearchParams();
   const { user } = useAuth();
   const router = useRouter();
   const inputRef = useRef(null);
@@ -36,18 +38,6 @@ const postDetails = () => {
   const [post, setPost] = useState(null);
   const [startLoading, setStartLoading] = useState(true);
   const [loading, setLoading] = useState(false);
-
-  const handleNewComment = async (payload) => {
-    console.log("got new comment: ", payload.new);
-    if (payload.new) {
-      let newComment = { ...payload.new };
-      let res = await getUserData(newComment.userId);
-      newComment.user = res?.success ? res?.data : {};
-      setPost((prevPost) => {
-        return { ...prevPost, comments: [newComment, ...prevPost.comments] };
-      });
-    }
-  };
 
   useEffect(() => {
     let commentChannel = supabase
@@ -70,6 +60,18 @@ const postDetails = () => {
       supabase.removeChannel(commentChannel);
     };
   }, []);
+
+  const handleNewComment = async (payload) => {
+    // console.log("got new comment: ", payload.new);
+    if (payload.new) {
+      let newComment = { ...payload.new };
+      let res = await getUserData(newComment.userId);
+      newComment.user = res?.success ? res?.data : {};
+      setPost((prevPost) => {
+        return { ...prevPost, comments: [newComment, ...prevPost.comments] };
+      });
+    }
+  };
 
   const getPostDetails = async () => {
     // fetch post details
@@ -94,6 +96,16 @@ const postDetails = () => {
     setLoading(false);
 
     if (res.success) {
+      if (user.id !== post.userId) {
+        // send notification
+        let notify = {
+          senderId: user.id,
+          receiverId: post.userId,
+          title: "commented on your post",
+          data: JSON.stringify({ postId: post.id, commentId: res?.data?.id }),
+        };
+        createNotification(notify);
+      }
       inputRef?.current?.clear();
       commentRef.current = "";
     } else {
@@ -120,12 +132,12 @@ const postDetails = () => {
   const onDeletePost = async (post) => {
     let res = await removePost(post.id);
     if (res.success) router.back();
-    else Alert.alert("Post", res.msg)
+    else Alert.alert("Post", res.msg);
   };
 
   const onEditPost = async (item) => {
     router.back();
-    router.push({ pathname: "newPost", params: {...item}})
+    router.push({ pathname: "newPost", params: { ...item } });
   };
 
   if (startLoading) {
@@ -150,7 +162,9 @@ const postDetails = () => {
   }
 
   return (
-    <ScreenWrapper style={styles.container} backgroundColor={"white"}>
+    <ScreenWrapper  backgroundColor={"white"}>
+      <View style={styles.container}>
+      <Header title={post?.user?.name} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
@@ -210,6 +224,7 @@ const postDetails = () => {
           )}
         </View>
       </ScrollView>
+      </View>
     </ScreenWrapper>
   );
 };
@@ -220,7 +235,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    paddingVertical: wp(7),
+    // paddingVertical: wp(7),
+    paddingHorizontal: wp(4),
+
   },
   inputContainer: {
     flexDirection: "row",
@@ -228,7 +245,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   list: {
-    paddingHorizontal: wp(4),
+    // paddingHorizontal: wp(4),
   },
   sendIcon: {
     alignItems: "center",
