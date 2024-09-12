@@ -213,6 +213,7 @@ const postDetails = () => {
               item={comment}
               key={comment?.id?.toString()}
               onDelete={onDeleteComment}
+              highlight={commentId == comment.id}
               canDelete={user.id == comment.userId || user.id == post.userId}
             />
           ))}

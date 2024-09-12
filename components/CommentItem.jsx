@@ -9,7 +9,8 @@ import Icon from "../assets/icons";
 const CommentItem = ({ 
     item, 
     canDelete = false, 
-    onDelete = () => {}
+    onDelete = () => {},
+    highlight = false
 }) => {
   const createdAt = moment(item?.created_at).format("MMM d");
 
@@ -31,7 +32,7 @@ const CommentItem = ({
   return (
     <View style={styles.container}>
       <Avatar uri={item?.user?.image} />
-      <View style={styles.content}>
+      <View style={[styles.content, highlight && styles.highlight]}>
         <View
           style={{
             flexDirection: "row",

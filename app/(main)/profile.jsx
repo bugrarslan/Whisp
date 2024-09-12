@@ -103,7 +103,7 @@ const Page = () => {
 const UserHeader = ({ user, router, logout }) => {
   return (
     <View
-      style={{ flex: 1, backgroundColor: "white", paddingHorizontal: wp(4) }}
+      style={{ flex: 1, backgroundColor: "white" }}
     >
       <View>
         <Header title={"Profile"} mb={30} />

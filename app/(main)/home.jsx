@@ -41,14 +41,16 @@ const Page = () => {
 
     if (payload.eventType === "DELETE" && payload?.old?.id) {
       setPosts((prevPosts) => {
-        let updatedPosts = prevPosts.filter((post) => post.id !== payload.old.id);
+        let updatedPosts = prevPosts.filter(
+          (post) => post.id !== payload.old.id
+        );
         return updatedPosts;
       });
     }
 
     if (payload.eventType === "UPDATE" && payload?.new?.id) {
-      setPosts(prevPosts => {
-        let updatedPosts = prevPosts.map(post => {
+      setPosts((prevPosts) => {
+        let updatedPosts = prevPosts.map((post) => {
           if (post.id === payload.new.id) {
             post.body = payload.new.body;
             post.file = payload.new.file;
@@ -56,8 +58,12 @@ const Page = () => {
           return post;
         });
         return updatedPosts;
-      })
+      });
     }
+  };
+
+  const handleNewNotification = async (payload) => {
+    console.log("new notification", payload);
   };
 
   useEffect(() => {
@@ -72,8 +78,24 @@ const Page = () => {
 
     // getPosts();
 
+    let notificationChannel = supabase
+      .channel("notifications")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `receiverId=eq.${user.id}`,
+        },
+        handleNewNotification
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(postChannel);
+      supabase.removeChannel(notificationChannel);
+
     };
   }, []);
 
