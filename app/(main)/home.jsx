@@ -23,11 +23,12 @@ import { getUserData } from "../../services/userService";
 
 var limit = 0;
 const Page = () => {
-  const { user, setAuth } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   const [posts, setPosts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const handlePostEvent = async (payload) => {
     if (payload.eventType === "INSERT" && payload?.new?.id) {
@@ -64,6 +65,9 @@ const Page = () => {
 
   const handleNewNotification = async (payload) => {
     console.log("new notification", payload);
+    if (payload.eventType === "INSERT" && payload?.new?.id) {
+      setNotificationCount((prev) => prev + 1);
+    }
   };
 
   useEffect(() => {
@@ -95,7 +99,6 @@ const Page = () => {
     return () => {
       supabase.removeChannel(postChannel);
       supabase.removeChannel(notificationChannel);
-
     };
   }, []);
 
@@ -122,13 +125,23 @@ const Page = () => {
             Whisp
           </Text>
           <View style={styles.icons}>
-            <Pressable onPress={() => router.push("./notifications")}>
+            <Pressable
+              onPress={() => {
+                setNotificationCount(0);
+                router.push("./notifications");
+              }}
+            >
               <Icon
                 name="heart"
                 size={hp(3.2)}
                 strokeWidth={2}
                 color={theme.colors.text}
               />
+              {notificationCount > 0 && (
+                <View style={styles.pill}>
+                  <Text style={styles.pillText}>{notificationCount}</Text>
+                </View>
+              )}
             </Pressable>
             <Pressable onPress={() => router.push("./newPost")}>
               <Icon
@@ -220,5 +233,21 @@ const styles = StyleSheet.create({
     fontSize: hp(2),
     color: theme.colors.text,
     textAlign: "center",
+  },
+  pill: {
+    position: "absolute",
+    top: -4,
+    right: -10,
+    height: hp(2.2),
+    width: hp(2.2),
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 20,
+    backgroundColor: theme.colors.roseLight,
+  },
+  pillText: {
+    color: "white",
+    fontSize: hp(1.2),
+    fontWeight: theme.fonts.bold,
   },
 });
