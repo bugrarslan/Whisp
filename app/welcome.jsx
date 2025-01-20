@@ -30,12 +30,12 @@ const Page = () => {
           <Button
             title="Getting Started"
             buttonStyle={{ marginHorizontal: wp(3) }}
-            onPress={() => router.push("signUp")}
+            onPress={() => router.push("/signUp")}
           />
 
           <View style={styles.bottomTextContainer}>
             <Text style={styles.loginText}>Already Have an account?</Text>
-            <Pressable onPress={() => router.push('login')}>
+            <Pressable onPress={() => router.push('/login')}>
               <Text
                 style={[
                   styles.loginText,
